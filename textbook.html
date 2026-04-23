@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>조직 설계법 다산 교재</title>
+  <style>
+    :root {
+      --bg: #080e1c;
+      --bg-soft: #0f172a;
+      --panel: #111c34;
+      --panel-2: #16233f;
+      --text: #e5ecff;
+      --muted: #9fb0d6;
+      --gold: #f5c842;
+      --gold-ink: #2b2100;
+      --line: #223255;
+      --accent: #6ea8ff;
+      --good: #89d185;
+      --warn: #ffb86c;
+      --shadow: 0 18px 50px rgba(0,0,0,.25);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Pretendard, sans-serif;
+      background: linear-gradient(180deg, #060b16 0%, var(--bg) 100%);
+      color: var(--text);
+      line-height: 1.65;
+    }
+    a { color: #9ec5ff; }
+    .layout {
+      display: grid;
+      grid-template-columns: 310px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 24px 18px 32px;
+      background: rgba(7, 12, 24, 0.95);
+      border-right: 1px solid var(--line);
+      backdrop-filter: blur(10px);
+    }
+    .brand { margin-bottom: 20px; }
+    .brand h1 { font-size: 1.3rem; margin: 0 0 6px; }
+    .brand p { color: var(--muted); margin: 0; font-size: .95rem; }
+    .progress-wrap {
+      margin: 18px 0 22px;
+      padding: 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+    .progress-bar {
+      height: 10px;
+      background: #0b1221;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), #ffd978);
+      transition: width .25s ease;
+    }
+    .toc a {
+      display: block;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      text-decoration: none;
+      color: var(--text);
+      border-radius: 12px;
+      background: transparent;
+      border: 1px solid transparent;
+    }
+    .toc a:hover, .toc a.active {
+      background: var(--panel);
+      border-color: var(--line);
+    }
+    main { padding: 32px clamp(18px, 3vw, 42px) 80px; }
+    .hero, section, .appendix {
+      background: linear-gradient(180deg, rgba(17,28,52,.95), rgba(12,20,37,.92));
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: clamp(20px, 3vw, 34px);
+      margin-bottom: 24px;
+    }
+    .hero h2 { font-size: clamp(1.8rem, 4vw, 2.7rem); margin-top: 0; line-height: 1.2; }
+    .hero-grid, .cards, .two-col { display: grid; gap: 16px; }
+    .hero-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .cards { grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); }
+    .two-col { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .chip, .card {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .chip strong { display: block; margin-bottom: 6px; }
+    h2, h3, h4 { line-height: 1.3; }
+    .dasan-box {
+      background: linear-gradient(180deg, #f5c842, #d3a620);
+      color: var(--gold-ink);
+      border-radius: 18px;
+      padding: 18px 18px 16px;
+      margin: 18px 0 20px;
+      font-weight: 600;
+    }
+    .dasan-box small { display: block; opacity: .85; margin-top: 6px; }
+    .section-label {
+      display: inline-block;
+      padding: 6px 10px;
+      font-size: .82rem;
+      letter-spacing: .02em;
+      border-radius: 999px;
+      background: #0a1326;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 18px;
+      overflow: hidden;
+      border-radius: 14px;
+      font-size: .95rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 12px 12px;
+      vertical-align: top;
+    }
+    th { background: #101a31; text-align: left; }
+    td { background: rgba(8,14,28,.45); }
+    ul { padding-left: 20px; }
+    blockquote {
+      margin: 16px 0;
+      padding: 14px 16px;
+      border-left: 4px solid var(--gold);
+      background: rgba(245,200,66,.08);
+      color: #f5e9b4;
+      border-radius: 10px;
+    }
+    .exercise {
+      background: rgba(110,168,255,.08);
+      border: 1px solid rgba(110,168,255,.22);
+      border-radius: 16px;
+      padding: 16px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 140px;
+      background: #071121;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      resize: vertical;
+      margin-top: 8px;
+      font: inherit;
+    }
+    .qa li { margin-bottom: 8px; }
+    .chapter-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+    .chapter-nav a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      padding: 11px 15px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #0c1528;
+      color: var(--text);
+    }
+    .sources { font-size: .93rem; color: var(--muted); }
+    .appendix-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: #071121;
+      border: 1px solid var(--line);
+      padding: 16px;
+      border-radius: 16px;
+      color: #d8e4ff;
+    }
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; }
+      .hero-grid, .two-col, .appendix-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="brand">
+        <h1>조직 설계법 다산 교재</h1>
+        <p>조직 운영과 에이전트 시스템 설계를 함께 다루는 중급 학습서</p>
+      </div>
+      <div class="progress-wrap">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <strong>진도</strong><span id="progressText">0%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+      <nav class="toc" id="toc">
+        <a href="#intro">들어가기</a>
+        <a href="#chapter1">1. 조직 설계란 무엇인가?</a>
+        <a href="#chapter2">2. 5개 핵심 원칙</a>
+        <a href="#chapter3">3. 8개 설계 요소</a>
+        <a href="#chapter4">4. 구조 유형 비교</a>
+        <a href="#chapter5">5. 설계 프로세스</a>
+        <a href="#chapter6">6. 고려사항과 흔한 실수</a>
+        <a href="#chapter7">7. 에이전트 조직에 적용하기</a>
+        <a href="#appendix">부록</a>
+      </nav>
+    </aside>
+    <main>
+      <section class="hero" id="intro">
+        <span class="section-label">교재 개요</span>
+        <h2>조직 설계는 “조직도를 그리는 일”이 아니라, <br/>전략이 실제로 작동하도록 사람·권한·협업을 배치하는 일이다.</h2>
+        <p>이 교재는 조직 설계의 핵심 개념을 다산식 공부법으로 풀어낸다. 읽는 동안 계속 비교하고, 반대로 생각하고, 직접 설계해보게 만든다. 마지막 챕터에서는 이 원리를 에이전트 조직 설계에 바로 연결한다.</p>
+        <div class="hero-grid">
+          <div class="chip"><strong>대상</strong>조직 운영 경험이 있거나, 여러 에이전트/팀을 설계하려는 중급 독자</div>
+          <div class="chip"><strong>학습 목표</strong>전략-구조-권한-협업-측정을 한 시스템으로 보는 시야 획득</div>
+          <div class="chip"><strong>핵심 질문</strong>어떤 일을 누구에게 묶고, 어디에서 결정하며, 어디에서 충돌을 풀 것인가?</div>
+          <div class="chip"><strong>학습법</strong>여박총피법, 피차비대법, 일반지도법, 정과실천법 중심</div>
+        </div>
+      </section>
+
+      <section id="chapter1">
+        <span class="section-label">Chapter 1</span>
+        <h2>1. 조직 설계란 무엇인가?</h2>
+        <div class="dasan-box">다산 원칙: <strong>여박총피법</strong> — “왜 이 구조가 필요한가?”를 한 겹 더 묻는다. / <strong>축기견초법</strong> — 구조보다 먼저 전략과 목적을 확인한다.<small>정의부터 잡지 않으면 뒤의 구조 논의는 전부 흔들린다.</small></div>
+        <h3>핵심 개념 설명</h3>
+        <p>조직 설계는 전략을 실행하기 위해 <strong>사람, 역할, 권한, 협업 방식, 프로세스, 성과 측정</strong>을 맞추는 일이다. AIHR은 이를 “전략 계획의 실행”으로 설명하고, The Org는 “성장과 품질을 뒷받침하는 실행 가능한 인사·업무 설계”로 본다. OpenStax는 구조(structure)와 설계(design)를 구분하며, 구조는 관계의 형태이고 설계는 그 형태를 의도적으로 만드는 과정이라고 정리한다.</p>
+        <blockquote>좋은 조직 설계는 단순히 누가 누구에게 보고하는지 정하는 것이 아니라, 어떤 정보가 어디로 흐르고 어떤 결정이 어디에서 내려지는지 정한다.</blockquote>
+        <h3>왜 이게 필요한가?</h3>
+        <p>전략이 좋아도 조직이 받쳐주지 않으면 실행이 느려진다. 신규 시장 진입, 다지역 운영, 복수 제품 운영, 에이전트 병렬 운영 같은 상황에서는 특히 그렇다. The Org는 조직 설계가 채용 타이밍, 의사결정 속도, 사일로 제거, 성장 기반 마련에 직접 연결된다고 설명한다. AIHR은 성숙한 조직 설계를 가진 조직이 변화 적응, 근무 경험, 재무 성과에서 더 높은 확률을 보인다고 제시한다.</p>
+        <h3>비교로 이해하기</h3>
+        <table>
+          <tr><th>구분</th><th>조직 구조</th><th>조직 설계</th></tr>
+          <tr><td>질문</td><td>조직이 어떻게 생겼는가?</td><td>왜 그렇게 배치했고, 어떻게 작동하게 만들 것인가?</td></tr>
+          <tr><td>산출물</td><td>조직도, 보고선</td><td>조직도 + 역할 + 프로세스 + 의사결정권 + KPI</td></tr>
+          <tr><td>관점</td><td>형태 중심</td><td>전략 실행 중심</td></tr>
+          <tr><td>실패 패턴</td><td>박스만 바꿈</td><td>박스·프로세스·권한·역량을 함께 조정</td></tr>
+        </table>
+        <h3>반대로 생각하면?</h3>
+        <p>“구조는 나중에 맞추면 된다”는 생각은 위험하다. 구조를 늦게 잡으면 책임 공백, 중복 채용, 승인 병목, 팀 간 긴장 누적이 생긴다. 특히 성장기 조직은 구조 미설계가 유연성이 아니라 <strong>암묵적 혼란</strong>이 되기 쉽다.</p>
+        <div class="exercise">
+          <h3>실습</h3>
+          <ol>
+            <li>현재 조직의 가장 중요한 전략 목표 1개를 적는다.</li>
+            <li>그 목표 달성에 필요한 핵심 흐름 3개(의사결정, 고객 전달, 운영)를 쓴다.</li>
+            <li>각 흐름에서 가장 많이 막히는 지점을 하나씩 표시한다.</li>
+          </ol>
+          <p><strong>완료 조건:</strong> “전략-업무흐름-병목”이 한 장에 연결되어 있어야 한다.</p>
+        </div>
+        <h3>내 생각 쓰기</h3>
+        <textarea placeholder="우리 조직/에이전트 시스템에서 구조 문제가 전략 실행을 방해한 사례를 적어보세요."></textarea>
+        <h3>다시 확인</h3>
+        <ol class="qa">
+          <li>조직 구조와 조직 설계의 차이를 한 문장으로 설명할 수 있는가?</li>
+          <li>내 조직에서 ‘보고선’ 말고도 설계해야 할 요소는 무엇인가?</li>
+          <li>전략이 바뀌었는데 구조를 그대로 두면 어떤 비용이 생기는가?</li>
+        </ol>
+        <p class="sources">근거: <a href="https://www.aihr.com/blog/organizational-design/">AIHR</a>, <a href="https://theorg.com/iterate/the-ultimate-guide-to-organizational-design">The Org</a>, <a href="https://openstax.org/books/principles-management/pages/10-1-organizational-structures-and-design">OpenStax</a></p>
+        <div class="chapter-nav"><span></span><a href="#chapter2">다음 장 →</a></div>
+      </section>
+
+      <section id="chapter2">
+        <span class="section-label">Chapter 2</span>
+        <h2>2. 5개 핵심 원칙</h2>
+        <div class="dasan-box">다산 원칙: <strong>층체판석법</strong> — 원칙을 섞어 보지 말고 층위별로 나눈다. / <strong>피차비대법</strong> — 원칙 사이의 긴장을 비교해본다.<small>조직 설계는 한 가지 원칙의 승리가 아니라, 여러 원칙의 균형이다.</small></div>
+        <h3>핵심 개념 설명</h3>
+        <p>AIHR이 소개한 Goold &amp; Campbell 기반 5원칙은 조직 설계를 볼 때 매우 유용한 렌즈다. 핵심은 “무엇을 얼마나 묶고, 누구에게 맡기며, 얼마나 통제하고, 얼마나 바꿀 수 있게 할 것인가”다.</p>
+        <table>
+          <tr><th>원칙</th><th>핵심 질문</th><th>설계 포인트</th></tr>
+          <tr><td>Specialization</td><td>전문성이 보호되어야 하는가?</td><td>역할 경계, 기능 분화, 깊이 있는 역량</td></tr>
+          <tr><td>Co-ordination</td><td>어디를 한 단위로 묶어야 협업이 쉬운가?</td><td>부서 묶음, 프로젝트팀, 오버레이 구조</td></tr>
+          <tr><td>Knowledge &amp; Competence</td><td>누가 가장 잘 결정할 수 있는가?</td><td>권한 위임, 현장 판단, 전문성 기반 책임</td></tr>
+          <tr><td>Control &amp; Commitment</td><td>통제와 몰입을 어떻게 같이 잡을까?</td><td>승인 수준, KPI, 자율성 범위</td></tr>
+          <tr><td>Innovation &amp; Adaptation</td><td>새 전략에 얼마나 빨리 적응할 수 있는가?</td><td>유연성, 실험 구조, 재배치 가능성</td></tr>
+        </table>
+        <h3>왜 이게 필요한가?</h3>
+        <p>한 조직이 효율을 위해 전문화를 강화하면, 대개 조정 비용이 올라간다. 반대로 협업을 쉽게 하려고 모든 것을 한 팀에 넣으면 전문성이 약해질 수 있다. 그래서 원칙은 체크리스트가 아니라 <strong>긴장 관리 도구</strong>다.</p>
+        <h3>비교로 이해하기</h3>
+        <table>
+          <tr><th>상황</th><th>더 중요한 원칙</th><th>설명</th></tr>
+          <tr><td>규모화된 운영, 반복 실행</td><td>Specialization / Control</td><td>표준화와 예측 가능성이 중요</td></tr>
+          <tr><td>신규 제품 탐색, 시장 실험</td><td>Co-ordination / Innovation</td><td>기능 간 빠른 연결과 적응이 중요</td></tr>
+          <tr><td>고난도 전문 판단</td><td>Knowledge &amp; Competence</td><td>위가 아니라 가장 잘 아는 곳이 결정해야 함</td></tr>
+        </table>
+        <h3>반대로 생각하면?</h3>
+        <p>통제가 느슨하면 창의적일 것 같지만, 실제로는 책임 불명확 때문에 실험조차 느려질 수 있다. 반대로 통제가 강하면 안정적일 것 같지만, 현장 판단이 죽어 적응이 늦어진다. 핵심은 많고 적음이 아니라 <strong>어디에 어떤 통제를 둘지</strong>다.</p>
+        <div class="exercise">
+          <h3>실습</h3>
+          <ol>
+            <li>당신의 조직이 현재 가장 강하게 최적화하는 원칙 2개를 고른다.</li>
+            <li>그 대가로 희생되는 원칙 1~2개를 적는다.</li>
+            <li>희생된 원칙을 보완할 작은 구조 장치(예: 주간 조정 회의, 결정권 명시)를 설계한다.</li>
+          </ol>
+          <p><strong>완료 조건:</strong> “강화하는 원칙 ↔ 희생되는 원칙 ↔ 보완 장치”가 연결돼야 한다.</p>
+        </div>
+        <h3>내 생각 쓰기</h3>
+        <textarea placeholder="우리 조직은 전문화와 협업 중 어디에서 더 큰 긴장을 겪고 있나요?"></textarea>
+        <h3>다시 확인</h3>
+        <ol class="qa">
+          <li>5개 원칙이 서로 충돌할 수 있다는 사실을 설명할 수 있는가?</li>
+          <li>내 조직에서 의사결정권은 ‘가장 높은 사람’에게 있는가, ‘가장 잘 아는 사람’에게 있는가?</li>
+          <li>적응력을 높이기 위해 줄여야 할 통제는 무엇인가?</li>
+        </ol>
+        <p class="sources">근거: <a href="https://www.aihr.com/blog/organizational-design/">AIHR</a></p>
+        <div class="chapter-nav"><a href="#chapter1">← 이전 장</a><a href="#chapter3">다음 장 →</a></div>
+      </section>
+
+      <section id="chapter3">
+        <span class="section-label">Chapter 3</span>
+        <h2>3. 8개 설계 요소</h2>
+        <div class="dasan-box">다산 원칙: <strong>휘분류취법</strong> — 흩어진 요소를 구조·역할·역량으로 묶어 분류한다. / <strong>선정문목법</strong> — 설계 전에 항목부터 세운다.<small>설계는 “감”이 아니라 항목별 해부에서 시작한다.</small></div>
+        <h3>핵심 개념 설명</h3>
+        <p>Stratechi는 조직 설계를 8개 요소로 쪼갠다. 장점은 조직개편을 “조직도 바꾸기”로 축소하지 않고, 실제로 손대야 할 지점을 분명히 보여준다는 점이다.</p>
+        <table>
+          <tr><th>범주</th><th>요소</th><th>의미</th></tr>
+          <tr><td rowspan="5">구조</td><td>1. Organizing Principles</td><td>플랫~계층형 사이에서 어떤 운영 철학을 택할 것인가</td></tr>
+          <tr><td>2. Framing</td><td>기능/시장/지역/매트릭스 중 어떤 틀로 조직을 자를 것인가</td></tr>
+          <tr><td>3. Overall Org &amp; Team Size</td><td>조직 전체와 팀별 적정 규모</td></tr>
+          <tr><td>4. Layers &amp; Span of Control</td><td>관리 층 수와 관리자당 직속 인원 수</td></tr>
+          <tr><td>5. Reporting Structure</td><td>실제 보고 관계와 책임선</td></tr>
+          <tr><td rowspan="3">역할·역량</td><td>6. Individual Roles</td><td>개인 책임, 권한, 성장 경로</td></tr>
+          <tr><td>7. Team Strategy</td><td>팀 미션, 팀 헌장, 운영 규칙</td></tr>
+          <tr><td>8. Cross-Functional Excellence</td><td>사일로를 넘는 협업 메커니즘</td></tr>
+        </table>
+        <h3>왜 이게 필요한가?</h3>
+        <p>조직개편이 실패하는 이유 중 하나는 너무 많은 것을 한 번에 바꾸거나, 반대로 너무 적게 건드리기 때문이다. Stratechi는 보통 2~4개 영역만 우선순위로 잡는 접근을 권한다. 이는 소화 가능한 변화량을 유지하면서도 핵심 병목을 겨냥하게 해준다.</p>
+        <h3>비교로 이해하기</h3>
+        <table>
+          <tr><th>증상</th><th>주로 점검할 요소</th><th>예시 질문</th></tr>
+          <tr><td>승인 병목이 심함</td><td>Layers &amp; Span / Reporting</td><td>관리층이 너무 많거나 직속 범위가 너무 좁은가?</td></tr>
+          <tr><td>역할 중복이 많음</td><td>Individual Roles</td><td>새 역할이 계속 생기고 책임 경계가 흐린가?</td></tr>
+          <tr><td>부서 사이 정치가 심함</td><td>Cross-Functional Excellence / Framing</td><td>기능 경계가 협업을 막고 있는가?</td></tr>
+          <tr><td>팀이 제각각 움직임</td><td>Team Strategy</td><td>팀 헌장과 공통 우선순위가 있는가?</td></tr>
+        </table>
+        <h3>반대로 생각하면?</h3>
+        <p>“역할을 자세히 정의하면 유연성이 떨어진다”는 말은 절반만 맞다. 정의가 없으면 유연성이 아니라 책임 회피가 된다. 반대로, 모든 역할을 과도하게 문서화하면 변화가 늦어진다. 역할은 <strong>핵심 책임과 인터페이스</strong>만 명확히 하고 나머지는 팀 차원에서 조정하게 두는 편이 낫다.</p>
+        <div class="exercise">
+          <h3>실습</h3>
+          <ol>
+            <li>8개 요소를 기준으로 현재 조직을 1~5점으로 채점한다.</li>
+            <li>점수가 가장 낮은 상위 3개를 고른다.</li>
+            <li>그중 “고치면 가장 파급효과가 큰 1개”를 선택한다.</li>
+          </ol>
+          <p><strong>완료 조건:</strong> 개선 우선순위가 숫자와 이유로 설명되어야 한다.</p>
+        </div>
+        <h3>내 생각 쓰기</h3>
+        <textarea placeholder="우리 조직에서 실제로 먼저 건드려야 하는 설계 요소는 무엇이고, 왜 그런가요?"></textarea>
+        <h3>다시 확인</h3>
+        <ol class="qa">
+          <li>8개 요소 중 구조와 역할·역량을 구분해서 설명할 수 있는가?</li>
+          <li>내 조직에서 지금 가장 위험한 요소는 어느 것인가?</li>
+          <li>한 번에 다 바꾸지 말아야 하는 이유는 무엇인가?</li>
+        </ol>
+        <p class="sources">근거: <a href="https://www.stratechi.com/organizational-design/">Stratechi</a></p>
+        <div class="chapter-nav"><a href="#chapter2">← 이전 장</a><a href="#chapter4">다음 장 →</a></div>
+      </section>
+
+      <section id="chapter4">
+        <span class="section-label">Chapter 4</span>
+        <h2>4. 조직 구조 유형 비교</h2>
+        <div class="dasan-box">다산 원칙: <strong>피차비대법</strong> — 구조는 비교해야 보인다. / <strong>일반지도법</strong> — 장점을 뒤집어 보면 한계가 보인다.<small>정답 구조는 없고, 전략에 맞는 구조만 있다.</small></div>
+        <h3>핵심 개념 설명</h3>
+        <p>The Org와 OpenStax는 조직 구조를 단일 서열이 아니라 환경·규모·전략에 따라 달라지는 선택지로 본다. OpenStax는 특히 기계적(mechanistic) 구조와 유기적(organic) 구조를 스펙트럼으로 설명한다. 아래 표는 실무에서 많이 비교하는 다섯 가지를 정리한 것이다.</p>
+        <table>
+          <tr><th>유형</th><th>강점</th><th>약점</th><th>잘 맞는 상황</th></tr>
+          <tr><td>기능형</td><td>전문화, 효율, 표준화</td><td>사일로, 부서 이기주의</td><td>반복 운영, 규모화 생산</td></tr>
+          <tr><td>사업부형/디비전형</td><td>시장·제품별 집중, 책임 명확</td><td>중복 자원, 기준 불일치</td><td>복수 제품/지역 운영</td></tr>
+          <tr><td>매트릭스</td><td>기능 전문성과 제품 협업을 같이 확보</td><td>권한 충돌, 우선순위 혼선</td><td>대기업, 복수 제품 포트폴리오</td></tr>
+          <tr><td>플랫</td><td>빠른 소통, 높은 자율성, 실험 속도</td><td>성장 시 불명확성, 리더 과부하</td><td>초기 스타트업, 소규모 실험팀</td></tr>
+          <tr><td>네트워크</td><td>유연한 외부 연계, 경량 운영</td><td>통제와 일관성 관리 어려움</td><td>파트너 생태계, 모듈식 운영</td></tr>
+        </table>
+        <h3>왜 이게 필요한가?</h3>
+        <p>구조 선택은 단지 스타일 문제가 아니다. 시장 진입 속도, 제품 복잡도, 의사결정 속도, 운영 일관성에 직접 영향을 준다. The Org는 스타트업에서 플랫 구조가 속도와 자율성을 주지만, 성장하면서는 구조적 보완이 필요하다고 설명한다. OpenStax도 혁신이 중요한 조직은 더 유기적이어야 하고, 신뢰성과 일관성이 중요한 조직은 더 기계적일 수 있다고 본다.</p>
+        <h3>비교로 이해하기</h3>
+        <table>
+          <tr><th>질문</th><th>기능형에 유리</th><th>사업부/매트릭스에 유리</th></tr>
+          <tr><td>고객/제품 요구가 얼마나 다른가?</td><td>대체로 비슷함</td><td>매우 다름</td></tr>
+          <tr><td>전문성 표준화가 중요한가?</td><td>매우 중요</td><td>중요하지만 현장 적응도 필요</td></tr>
+          <tr><td>협업 복잡도가 큰가?</td><td>낮음~중간</td><td>중간~매우 높음</td></tr>
+        </table>
+        <h3>반대로 생각하면?</h3>
+        <p>플랫 구조는 자유로워 보이지만, 규모가 커지면 보이지 않는 위계와 비공식 권력이 생긴다. 매트릭스는 복잡해 보이지만, 복잡한 사업을 억지로 단순 구조에 넣는 것보다 오히려 현실을 더 정확히 반영할 수 있다.</p>
+        <div class="exercise">
+          <h3>실습</h3>
+          <ol>
+            <li>현재 조직을 다섯 구조 중 어디에 가장 가깝게 분류한다.</li>
+            <li>그 구조의 장점 2개와 비용 2개를 적는다.</li>
+            <li>다음 성장 단계에서 필요한 보완 장치 1개를 설계한다.</li>
+          </ol>
+          <p><strong>완료 조건:</strong> 현재 구조 선택의 이유와 다음 단계 위험이 같이 적혀야 한다.</p>
+        </div>
+        <h3>내 생각 쓰기</h3>
+        <textarea placeholder="지금 우리 조직/에이전트 시스템에 가장 맞는 구조 유형은 무엇인가요?"></textarea>
+        <h3>다시 확인</h3>
+        <ol class="qa">
+          <li>플랫 구조의 장점이 왜 성장 단계에서는 약점이 될 수 있는가?</li>
+          <li>매트릭스 구조의 핵심 리스크는 무엇인가?</li>
+          <li>기능형 구조가 특히 잘 맞는 업무는 어떤 종류인가?</li>
+        </ol>
+        <p class="sources">근거: <a href="https://theorg.com/iterate/the-ultimate-guide-to-organizational-design">The Org</a>, <a href="https://openstax.org/books/principles-management/pages/10-1-organizational-structures-and-design">OpenStax</a>, <a href="https://www.stratechi.com/organizational-design/">Stratechi</a></p>
+        <div class="chapter-nav"><a href="#chapter3">← 이전 장</a><a href="#chapter5">다음 장 →</a></div>
+      </section>
+
+      <section id="chapter5">
+        <span class="section-label">Chapter 5</span>
+        <h2>5. 설계 프로세스</h2>
+        <div class="dasan-box">다산 원칙: <strong>선정문목법</strong> — 순서를 정하고 들어간다. / <strong>정과실천법</strong> — 단계를 정하고 그대로 실행한다.<small>조직 설계는 번뜩임보다 순서가 중요하다.</small></div>
+        <h3>핵심 개념 설명</h3>
+        <p>AIHR, Stratechi, The Org는 표현은 달라도 공통 구조가 있다. <strong>전략 → 현재 진단 → 설계안 → 실행·측정</strong>이다. The Org는 이를 9단계로 세분화하고, Stratechi는 baseline-design-plan-execute의 4단계로 요약한다.</p>
+        <table>
+          <tr><th>단계</th><th>핵심 질문</th><th>실무 산출물</th></tr>
+          <tr><td>1. 전략 명확화</td><td>우리는 어디서 어떻게 이길 것인가?</td><td>전략 문장, 우선순위, 설계 기준</td></tr>
+          <tr><td>2. 현재 상태 분석</td><td>지금 무엇이 막히는가?</td><td>병목 지도, 역할 충돌, 역량 갭</td></tr>
+          <tr><td>3. 미래 설계</td><td>어떤 구조·권한·협업 방식이 필요한가?</td><td>조직도, 역할 정의, 결정권 매트릭스</td></tr>
+          <tr><td>4. 실행 계획</td><td>어떤 순서로 바꿀 것인가?</td><td>전환 일정, 커뮤니케이션 계획</td></tr>
+          <tr><td>5. 측정·조정</td><td>설계가 실제로 작동하는가?</td><td>KPI, 회고, 후속 개편 목록</td></tr>
+        </table>
+        <h3>왜 이게 필요한가?</h3>
+        <p>AIHR은 현재 상태(as-is) 이해 없이 곧바로 미래 상태(to-be)를 그리는 실수를 경계한다. Stratechi도 조직 재구성은 변화 소화력이 중요하므로 포괄적 분석과 협업적 반복이 필요하다고 말한다. 즉, 설계 프로세스는 “멋진 구조안 만들기”보다 <strong>잘못된 가정을 줄이는 절차</strong>다.</p>
+        <h3>비교로 이해하기</h3>
+        <table>
+          <tr><th>잘못된 접근</th><th>좋은 접근</th></tr>
+          <tr><td>리더가 조직도 초안을 먼저 그림</td><td>전략과 현재 병목을 먼저 분석</td></tr>
+          <tr><td>한 번에 전면 개편</td><td>우선순위 2~4개부터 단계적 개편</td></tr>
+          <tr><td>개편 후 성과 측정 없음</td><td>결정속도·협업비용·성과지표를 추적</td></tr>
+        </table>
+        <h3>반대로 생각하면?</h3>
+        <p>“우리는 스타트업이라 프로세스가 느리면 안 된다”는 이유로 진단을 건너뛰면, 오히려 더 큰 재작업이 생긴다. 반대로 “분석을 더 해야 한다”만 반복하면 설계가 영원히 시작되지 않는다. 핵심은 완벽한 데이터가 아니라 <strong>의사결정에 충분한 데이터</strong>다.</p>
+        <div class="exercise">
+          <h3>실습</h3>
+          <ol>
+            <li>조직 설계 프로젝트의 목적을 1문장으로 쓴다.</li>
+            <li>현재 상태 분석에 필요한 데이터 5개를 적는다. (예: 승인 리드타임, 회의 수, 고객 이슈 처리 시간)</li>
+            <li>개편 성공 여부를 판단할 KPI 3개를 고른다.</li>
+          </ol>
+          <p><strong>완료 조건:</strong> 시작 전부터 “무엇을 보고 성공이라 할지” 정해져 있어야 한다.</p>
+        </div>
+        <h3>내 생각 쓰기</h3>
+        <textarea placeholder="내가 진행할 조직 설계 프로젝트의 범위와 성공 기준을 적어보세요."></textarea>
+        <h3>다시 확인</h3>
+        <ol class="qa">
+          <li>왜 as-is 분석이 반드시 필요한가?</li>
+          <li>전면 개편 대신 우선순위 개편이 유리한 이유는 무엇인가?</li>
+          <li>개편 후 반드시 추적해야 할 지표는 무엇인가?</li>
+        </ol>
+        <p class="sources">근거: <a href="https://www.aihr.com/blog/organizational-design/">AIHR</a>, <a href="https://www.stratechi.com/organizational-design/">Stratechi</a>, <a href="https://theorg.com/iterate/the-ultimate-guide-to-organizational-design">The Org</a></p>
+        <div class="chapter-nav"><a href="#chapter4">← 이전 장</a><a href="#chapter6">다음 장 →</a></div>
+      </section>
+
+      <section id="chapter6">
+        <span class="section-label">Chapter 6</span>
+        <h2>6. 핵심 고려사항과 흔한 실수</h2>
+        <div class="dasan-box">다산 원칙: <strong>절시마탁법</strong> — 틀린 것을 명확히 짚는다. / <strong>무징불신법</strong> — 검증 없는 낙관을 믿지 않는다.<small>조직 설계 실패는 대부분 구조 자체보다 설계 가정과 실행 부실에서 나온다.</small></div>
+        <h3>핵심 개념 설명</h3>
+        <p>좋은 설계에는 전략, 환경, 기술, 규모·생애주기, 문화가 모두 영향을 준다(AIHR). OpenStax는 공식 조직(formal)과 비공식 조직(informal)을 함께 보라고 말한다. 즉, 조직도만 그려서는 실제 작동 방식을 설명할 수 없다.</p>
+        <h3>왜 이게 필요한가?</h3>
+        <p>현실의 조직은 비공식 영향력, 암묵적 승인, 오래된 관습 때문에 움직인다. 따라서 개편은 새 구조 발표보다 실제 권한 이동, 회의체 재설계, 정보 흐름 변경, 관리자 역량 보강까지 포함해야 한다.</p>
+        <h3>비교로 이해하기</h3>
+        <table>
+          <tr><th>흔한 실수</th><th>왜 문제인가</th><th>대응</th></tr>
+          <tr><td>전략 없이 구조부터 바꿈</td><td>구조가 목적을 잃고 정치 싸움이 됨</td><td>먼저 전략 문장과 설계 원칙 확정</td></tr>
+          <tr><td>조직도만 바꾸고 역할은 그대로 둠</td><td>이름만 바뀌고 일은 그대로 남음</td><td>R&amp;R, 의사결정권, KPI 동시 수정</td></tr>
+          <tr><td>관리층이 너무 많음</td><td>승인 지연, 정보 왜곡, 책임 희석</td><td>레이어 축소, span 재설계</td></tr>
+          <tr><td>크로스펑셔널 운영 장치 없음</td><td>사일로와 책임 전가 심화</td><td>회의체, 공통 지표, 인터페이스 정의</td></tr>
+          <tr><td>비공식 조직 무시</td><td>실제 영향력을 놓침</td><td>핵심 인플루언서, 네트워크 맵 파악</td></tr>
+        </table>
+        <h3>반대로 생각하면?</h3>
+        <p>비공식 네트워크를 없애야 한다고 생각하기 쉽지만, 실제로는 잘 설계된 비공식 연결이 혁신과 조정의 핵심이 된다. 문제는 비공식 네트워크 자체가 아니라, 공식 구조가 그것을 전혀 고려하지 않는 데 있다.</p>
+        <div class="exercise">
+          <h3>실습</h3>
+          <ol>
+            <li>당신 조직의 공식 보고선과 실제 영향력 선을 각각 그린다.</li>
+            <li>두 그림이 가장 다르게 나오는 지점을 찾는다.</li>
+            <li>그 차이를 줄이기 위한 제도 1개와 운영 습관 1개를 정한다.</li>
+          </ol>
+          <p><strong>완료 조건:</strong> 공식 구조와 실제 운영의 차이가 드러나야 한다.</p>
+        </div>
+        <h3>내 생각 쓰기</h3>
+        <textarea placeholder="우리 조직에서 ‘보이는 구조’와 ‘실제 작동 구조’가 다른 지점을 적어보세요."></textarea>
+        <h3>다시 확인</h3>
+        <ol class="qa">
+          <li>비공식 조직을 무시하면 왜 위험한가?</li>
+          <li>구조 개편 후 역할과 KPI를 안 바꾸면 무슨 일이 벌어지는가?</li>
+          <li>우리 조직의 가장 큰 병목은 층 수, 역할, 협업, 문화 중 어디에 가까운가?</li>
+        </ol>
+        <p class="sources">근거: <a href="https://www.aihr.com/blog/organizational-design/">AIHR</a>, <a href="https://openstax.org/books/principles-management/pages/10-1-organizational-structures-and-design">OpenStax</a>, <a href="https://www.stratechi.com/organizational-design/">Stratechi</a></p>
+        <div class="chapter-nav"><a href="#chapter5">← 이전 장</a><a href="#chapter7">다음 장 →</a></div>
+      </section>
+
+      <section id="chapter7">
+        <span class="section-label">Chapter 7</span>
+        <h2>7. 에이전트 조직에 적용하기</h2>
+        <div class="dasan-box">다산 원칙: <strong>촉류방통법</strong> — 사람 조직의 원리를 에이전트 조직으로 확장한다. / <strong>채적명리법</strong> — 실제 설계에 적용해 의미를 밝힌다.<small>에이전트 조직도 결국 ‘누가 무엇을 언제 어떤 권한으로 결정하는가’의 문제다.</small></div>
+        <h3>핵심 개념 설명</h3>
+        <p>에이전트 시스템이 복잡해질수록 단일 만능 에이전트는 한계에 부딪힌다. 이때 조직 설계 원리가 바로 도움이 된다. 사람 조직의 기능팀, 프로젝트팀, 운영팀, 거버넌스 구조를 에이전트 세계에 옮기면 다음과 같이 볼 수 있다.</p>
+        <table>
+          <tr><th>조직 설계 개념</th><th>사람 조직</th><th>에이전트 조직 대응</th></tr>
+          <tr><td>Specialization</td><td>기능별 팀</td><td>리서치 에이전트, 구현 에이전트, 리뷰 에이전트 분리</td></tr>
+          <tr><td>Co-ordination</td><td>프로젝트 회의체</td><td>오케스트레이터, 공유 컨텍스트, 태스크 큐</td></tr>
+          <tr><td>Knowledge &amp; Competence</td><td>전문가에게 결정 위임</td><td>도메인 특화 에이전트에게 1차 판단권 부여</td></tr>
+          <tr><td>Control &amp; Commitment</td><td>승인 체계와 KPI</td><td>가드레일, 승인 단계, 자동 테스트, 품질 체크</td></tr>
+          <tr><td>Innovation &amp; Adaptation</td><td>실험팀, 신규 과제 셀</td><td>샌드박스 에이전트, 실험 워크플로, 빠른 재배치</td></tr>
+        </table>
+        <h3>왜 이게 필요한가?</h3>
+        <p>에이전트가 늘어나면 세 가지 문제가 바로 생긴다. 첫째, 누가 무슨 일을 맡는지 겹친다. 둘째, 컨텍스트 전달 비용이 커진다. 셋째, 최종 책임이 흐려진다. 이건 전형적인 조직 설계 문제다. 따라서 에이전트 시스템도 구조, 역할, 인터페이스, 거버넌스를 설계해야 한다.</p>
+        <h3>비교로 이해하기</h3>
+        <table>
+          <tr><th>설계 방식</th><th>장점</th><th>리스크</th><th>추천 상황</th></tr>
+          <tr><td>단일 총괄 에이전트</td><td>단순함, 설정 쉬움</td><td>컨텍스트 과부하, 품질 편차</td><td>작은 작업, 초기 실험</td></tr>
+          <tr><td>기능형 에이전트 조직</td><td>전문화, 품질 안정</td><td>사일로, handoff 비용</td><td>반복적 멀티스텝 작업</td></tr>
+          <tr><td>프로젝트형/스쿼드형 에이전트</td><td>문제 단위 집중, 조정 용이</td><td>중복 역량, 기준 불균형</td><td>목표 중심 과제, 제품 단위 운영</td></tr>
+          <tr><td>매트릭스형 에이전트</td><td>도메인 전문성 + 프로젝트 협업</td><td>권한 충돌, 지시 우선순위 혼선</td><td>대규모 에이전트 플랫폼</td></tr>
+        </table>
+        <h3>반대로 생각하면?</h3>
+        <p>“에이전트는 복제 비용이 낮으니 많이 두면 된다”는 생각은 위험하다. 수가 늘수록 조정 비용, 검증 비용, 로그 관리 비용이 증가한다. 사람 조직에서 관리층이 늘면 관료주의가 커지듯, 에이전트 조직에서도 오케스트레이션 오버헤드가 커진다.</p>
+        <div class="two-col">
+          <div>
+            <h3>에이전트 조직 설계 체크포인트</h3>
+            <ul>
+              <li>역할 경계: 각 에이전트가 책임지는 입력/출력은 무엇인가?</li>
+              <li>의사결정권: 자동 결정 가능한 범위와 사람 승인 범위는 어디까지인가?</li>
+              <li>handoff 규칙: 어떤 형식으로 컨텍스트를 넘길 것인가?</li>
+              <li>품질 관리: 누가 검수하고 어떤 게이트를 통과해야 하는가?</li>
+              <li>확장성: 새 에이전트를 넣을 때 기존 구조가 버티는가?</li>
+            </ul>
+          </div>
+          <div>
+            <h3>권장 기본 구조 예시</h3>
+            <pre>총괄 오케스트레이터
+├─ 리서치 에이전트
+├─ 설계/기획 에이전트
+├─ 구현 에이전트
+├─ 리뷰 에이전트
+└─ 기록/회고 에이전트
+
+공통 장치
+- 공유 메모리 규약
+- 승인 정책
+- 테스트/검수 게이트
+- 예외 escalation 규칙</pre>
+          </div>
+        </div>
+        <div class="exercise">
+          <h3>실습</h3>
+          <ol>
+            <li>현재 운영 중인 에이전트를 전부 적는다.</li>
+            <li>각 에이전트를 기능형/프로젝트형/거버넌스형으로 분류한다.</li>
+            <li>handoff가 가장 자주 깨지는 지점 1개를 골라 인터페이스 규약을 만든다.</li>
+          </ol>
+          <p><strong>완료 조건:</strong> 최소 1개의 에이전트 인터페이스 규약 초안이 있어야 한다.</p>
+        </div>
+        <h3>내 생각 쓰기</h3>
+        <textarea placeholder="내 에이전트 조직에서 누락된 역할, 과도한 승인, 불필요한 handoff를 적어보세요."></textarea>
+        <h3>다시 확인</h3>
+        <ol class="qa">
+          <li>에이전트 수를 늘리는 것과 조직 설계를 잘하는 것은 왜 다른가?</li>
+          <li>내 시스템에서 가장 먼저 분리해야 할 전문 역할은 무엇인가?</li>
+          <li>어떤 결정은 자동화하고, 어떤 결정은 사람 승인을 남겨야 하는가?</li>
+        </ol>
+        <p class="sources">근거: <a href="https://www.aihr.com/blog/organizational-design/">AIHR</a>, <a href="https://www.stratechi.com/organizational-design/">Stratechi</a>, <a href="https://theorg.com/iterate/the-ultimate-guide-to-organizational-design">The Org</a>, <a href="https://openstax.org/books/principles-management/pages/10-1-organizational-structures-and-design">OpenStax</a></p>
+        <div class="chapter-nav"><a href="#chapter6">← 이전 장</a><a href="#appendix">부록 보기 →</a></div>
+      </section>
+
+      <section class="appendix" id="appendix">
+        <span class="section-label">Appendix</span>
+        <h2>부록</h2>
+        <div class="appendix-grid">
+          <div class="card">
+            <h3>출처 링크 모음</h3>
+            <ul>
+              <li><a href="https://www.aihr.com/blog/organizational-design/">AIHR - Organizational Design: A Complete Guide</a></li>
+              <li><a href="https://www.stratechi.com/organizational-design/">Stratechi - Organizational Design Playbook</a></li>
+              <li><a href="https://theorg.com/iterate/the-ultimate-guide-to-organizational-design">The Org - The Ultimate Guide to Organizational Design</a></li>
+              <li><a href="https://openstax.org/books/principles-management/pages/10-1-organizational-structures-and-design">OpenStax - Organizational Structures and Design</a></li>
+              <li><a href="https://peoplemanagingpeople.com/hr-strategy/organizational-design/">People Managing People - Organizational Design Expert's Guide</a> <em>(직접 본문 추출은 403으로 제한됨)</em></li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>다산 50법 × 조직 설계 대응표</h3>
+            <table>
+              <tr><th>다산 원칙</th><th>조직 설계 적용</th></tr>
+              <tr><td>여박총피법</td><td>구조가 아니라 전략적 이유를 먼저 묻기</td></tr>
+              <tr><td>피차비대법</td><td>구조 유형·원칙 간 장단 비교</td></tr>
+              <tr><td>일반지도법</td><td>장점을 뒤집어 한계를 확인</td></tr>
+              <tr><td>선정문목법</td><td>설계 항목과 단계 먼저 정의</td></tr>
+              <tr><td>정과실천법</td><td>개편을 단계별로 실행하고 측정</td></tr>
+              <tr><td>무징불신법</td><td>데이터 없이 개편 효과를 단정하지 않기</td></tr>
+              <tr><td>수사차록법</td><td>개편 판단과 배운 점을 즉시 기록</td></tr>
+            </table>
+          </div>
+          <div class="card">
+            <h3>조직 설계 체크리스트</h3>
+            <ul>
+              <li>전략과 설계 목표가 한 문장으로 명확한가?</li>
+              <li>현재 병목과 역할 충돌이 데이터로 확인되었는가?</li>
+              <li>조직 구조 외에 역할, KPI, 의사결정권도 같이 설계했는가?</li>
+              <li>관리 레이어와 span of control이 적절한가?</li>
+              <li>크로스펑셔널 협업 장치가 있는가?</li>
+              <li>개편 후 추적할 KPI가 정해졌는가?</li>
+              <li>비공식 영향력 구조를 파악했는가?</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>에이전트 조직 설계 템플릿</h3>
+            <pre>[목표]
+이번 분기 에이전트 조직이 달성해야 할 핵심 결과:
+
+[구조]
+- 총괄 오케스트레이터:
+- 전문 에이전트:
+- 리뷰/검증 에이전트:
+- 기록/회고 에이전트:
+
+[역할 인터페이스]
+- 입력 형식:
+- 출력 형식:
+- handoff 조건:
+- 실패 시 escalation:
+
+[거버넌스]
+- 자동 승인 범위:
+- 사람 승인 범위:
+- 품질 게이트:
+- 로그/기록 위치:
+
+[측정]
+- 작업 완료 리드타임:
+- 재작업률:
+- handoff 실패율:
+- 사용자 만족/정확도:</pre>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script>
+    const sections = [...document.querySelectorAll('main section')];
+    const tocLinks = [...document.querySelectorAll('#toc a')];
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+
+    const updateProgress = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const percent = docHeight > 0 ? Math.round((scrollTop / docHeight) * 100) : 0;
+      progressFill.style.width = percent + '%';
+      progressText.textContent = percent + '%';
+
+      let currentId = sections[0]?.id;
+      sections.forEach(sec => {
+        const rect = sec.getBoundingClientRect();
+        if (rect.top <= 180) currentId = sec.id;
+      });
+      tocLinks.forEach(link => link.classList.toggle('active', link.getAttribute('href') === '#' + currentId));
+    };
+
+    window.addEventListener('scroll', updateProgress, { passive: true });
+    window.addEventListener('load', updateProgress);
+  </script>
+</body>
+</html>
