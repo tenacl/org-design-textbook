@@ -187,6 +187,138 @@
     }
     .sources { font-size: .93rem; color: var(--muted); }
     .appendix-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
+    .study-notes-trigger, .ghost-button, .highlight-action, .ask-ai-fab, .panel-copy-btn, .notes-export-btn, .notes-close-btn {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      font: inherit;
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+    .study-notes-trigger, .ghost-button {
+      width: 100%;
+      margin: 0 0 14px;
+      padding: 12px 14px;
+      background: var(--panel);
+      color: var(--text);
+      text-align: left;
+    }
+    .study-notes-trigger:hover, .ghost-button:hover, .highlight-action:hover, .ask-ai-fab:hover, .panel-copy-btn:hover, .notes-export-btn:hover, .notes-close-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(0,0,0,.2);
+    }
+    .learning-highlight {
+      background: rgba(245, 200, 66, 0.3);
+      border-radius: 4px;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+    }
+    .selection-toolbar {
+      position: fixed;
+      z-index: 30;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+    }
+    .highlight-action {
+      width: 42px;
+      height: 42px;
+      background: var(--gold);
+      color: var(--gold-ink);
+      font-size: 1.15rem;
+    }
+    .toolbar-label { color: var(--muted); font-size: .88rem; padding-right: 6px; }
+    .ask-ai-fab {
+      position: fixed;
+      right: 32px;
+      bottom: 32px;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: var(--gold-ink);
+      font-size: 1.45rem;
+      z-index: 25;
+      box-shadow: var(--shadow);
+    }
+    .ai-panel {
+      position: fixed;
+      right: 32px;
+      bottom: 102px;
+      width: min(360px, calc(100vw - 32px));
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 18px;
+      z-index: 25;
+      box-shadow: var(--shadow);
+      display: none;
+    }
+    .ai-panel.open { display: block; }
+    .ai-panel textarea { min-height: 110px; margin-bottom: 12px; }
+    .panel-copy-btn, .notes-export-btn, .notes-close-btn {
+      padding: 10px 14px;
+      background: var(--gold);
+      color: var(--gold-ink);
+    }
+    .panel-copy-btn { width: 100%; }
+    .panel-hint, .note-meta { color: var(--muted); font-size: .9rem; }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 7, 16, 0.76);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+      padding: 18px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .notes-modal {
+      width: min(920px, 100%);
+      max-height: 82vh;
+      overflow: auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+    .notes-modal-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .notes-modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .notes-group {
+      background: rgba(8,14,28,.42);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .note-item {
+      padding: 14px 0;
+      border-top: 1px solid rgba(159,176,214,.14);
+    }
+    .note-item:first-of-type { border-top: 0; padding-top: 4px; }
+    .note-quote {
+      margin: 0 0 8px;
+      padding: 12px 14px;
+      border-left: 4px solid var(--gold);
+      background: rgba(245,200,66,.08);
+      border-radius: 10px;
+      color: #f5e9b4;
+    }
+    .empty-notes { color: var(--muted); padding: 22px 0 8px; }
     pre {
       white-space: pre-wrap;
       word-break: break-word;
@@ -200,6 +332,8 @@
       .layout { grid-template-columns: 1fr; }
       aside { position: static; height: auto; }
       .hero-grid, .two-col, .appendix-grid { grid-template-columns: 1fr; }
+      .ai-panel { left: 18px; right: 18px; bottom: 94px; width: auto; }
+      .ask-ai-fab { right: 18px; bottom: 18px; }
     }
   </style>
 </head>
@@ -216,6 +350,7 @@
         </div>
         <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
       </div>
+      <button class="study-notes-trigger" id="studyNotesButton" type="button">📝 내 학습 노트</button>
       <nav class="toc" id="toc">
         <a href="#intro">들어가기</a>
         <a href="#chapter1">1. 조직 설계란 무엇인가?</a>
@@ -655,11 +790,346 @@
       </section>
     </main>
   </div>
+  <div class="selection-toolbar" id="selectionToolbar">
+    <span class="toolbar-label">선택한 문장 저장</span>
+    <button class="highlight-action" id="highlightButton" type="button" aria-label="하이라이트 저장">🖍️</button>
+  </div>
+
+  <button class="ask-ai-fab" id="askAiFab" type="button" aria-label="AI 질문하기">💬</button>
+  <div class="ai-panel" id="aiPanel">
+    <h3 style="margin-top:0;">AI 질문하기</h3>
+    <p class="panel-hint" id="chapterContext">현재 챕터를 기준으로 질문 내용을 복사합니다.</p>
+    <textarea id="aiQuestionInput" placeholder="헷갈리는 점, 비교하고 싶은 구조, 적용 아이디어를 적어보세요."></textarea>
+    <button class="panel-copy-btn" id="copyAiQuestion" type="button">현재 챕터 + 질문 복사</button>
+  </div>
+
+  <div class="modal-backdrop" id="notesModalBackdrop">
+    <div class="notes-modal" role="dialog" aria-modal="true" aria-labelledby="notesModalTitle">
+      <div class="notes-modal-header">
+        <div>
+          <h2 id="notesModalTitle" style="margin:0 0 6px;">내 학습 노트</h2>
+          <p class="panel-hint" style="margin:0;">챕터별 하이라이트와 메모를 한 번에 볼 수 있어요.</p>
+        </div>
+        <div class="notes-modal-actions">
+          <button class="notes-export-btn" id="exportNotesButton" type="button">MD로 내보내기</button>
+          <button class="notes-close-btn" id="closeNotesButton" type="button">닫기</button>
+        </div>
+      </div>
+      <div id="notesModalContent"></div>
+    </div>
+  </div>
+
   <script>
     const sections = [...document.querySelectorAll('main section')];
     const tocLinks = [...document.querySelectorAll('#toc a')];
     const progressFill = document.getElementById('progressFill');
     const progressText = document.getElementById('progressText');
+    const selectionToolbar = document.getElementById('selectionToolbar');
+    const highlightButton = document.getElementById('highlightButton');
+    const studyNotesButton = document.getElementById('studyNotesButton');
+    const notesModalBackdrop = document.getElementById('notesModalBackdrop');
+    const notesModalContent = document.getElementById('notesModalContent');
+    const closeNotesButton = document.getElementById('closeNotesButton');
+    const exportNotesButton = document.getElementById('exportNotesButton');
+    const askAiFab = document.getElementById('askAiFab');
+    const aiPanel = document.getElementById('aiPanel');
+    const aiQuestionInput = document.getElementById('aiQuestionInput');
+    const copyAiQuestion = document.getElementById('copyAiQuestion');
+    const chapterContext = document.getElementById('chapterContext');
+    const storageKey = 'org-design-textbook-highlights-v1';
+    let pendingSelection = null;
+
+    const readHighlights = () => {
+      try {
+        const raw = localStorage.getItem(storageKey);
+        return raw ? JSON.parse(raw) : [];
+      } catch (error) {
+        console.error('Failed to parse highlights', error);
+        return [];
+      }
+    };
+
+    let highlights = readHighlights();
+
+    const saveHighlights = () => {
+      localStorage.setItem(storageKey, JSON.stringify(highlights));
+    };
+
+    const getChapterMeta = (nodeOrElement) => {
+      const element = nodeOrElement?.nodeType === Node.ELEMENT_NODE ? nodeOrElement : nodeOrElement?.parentElement;
+      const section = element?.closest('section');
+      if (!section) return null;
+      const heading = section.querySelector('h2');
+      return {
+        section,
+        chapterId: section.id || 'unknown',
+        chapterTitle: heading ? heading.textContent.trim() : '이름 없는 챕터'
+      };
+    };
+
+    const getCurrentChapter = () => {
+      let current = sections[0];
+      sections.forEach(sec => {
+        if (sec.getBoundingClientRect().top <= 180) current = sec;
+      });
+      return getChapterMeta(current);
+    };
+
+    const sanitizeText = (value) => (value || '').replace(/\s+/g, ' ').trim();
+
+    const countOccurrencesBeforeRange = (section, range, selectedText) => {
+      const normalizedTarget = sanitizeText(selectedText);
+      if (!normalizedTarget) return 0;
+      const walker = document.createTreeWalker(section, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          return node.parentElement?.closest('.selection-toolbar, .ai-panel, .modal-backdrop') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      let chapterText = '';
+      let reachedStart = false;
+      while (walker.nextNode()) {
+        const node = walker.currentNode;
+        if (node === range.startContainer) {
+          chapterText += node.textContent.slice(0, range.startOffset);
+          reachedStart = true;
+          break;
+        }
+        chapterText += node.textContent;
+      }
+      if (!reachedStart) return 0;
+      const normalizedBefore = sanitizeText(chapterText);
+      if (!normalizedBefore) return 0;
+      let count = 0;
+      let idx = normalizedBefore.indexOf(normalizedTarget);
+      while (idx !== -1) {
+        count += 1;
+        idx = normalizedBefore.indexOf(normalizedTarget, idx + normalizedTarget.length);
+      }
+      return count;
+    };
+
+    const getTextNodes = (root) => {
+      const nodes = [];
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          if (!node.textContent.trim()) return NodeFilter.FILTER_REJECT;
+          if (node.parentElement?.closest('.selection-toolbar, .ai-panel, .modal-backdrop, script, style')) return NodeFilter.FILTER_REJECT;
+          if (node.parentElement?.classList.contains('learning-highlight')) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      return nodes;
+    };
+
+    const splitBoundaries = (range) => {
+      const startNode = range.startContainer;
+      const endNode = range.endContainer;
+      if (endNode.nodeType === Node.TEXT_NODE && range.endOffset > 0 && range.endOffset < endNode.textContent.length) {
+        endNode.splitText(range.endOffset);
+      }
+      if (startNode.nodeType === Node.TEXT_NODE && range.startOffset > 0 && range.startOffset < startNode.textContent.length) {
+        const newStart = startNode.splitText(range.startOffset);
+        if (endNode === startNode) {
+          range.setEnd(newStart, range.endOffset - range.startOffset);
+        }
+        range.setStart(newStart, 0);
+      }
+    };
+
+    const wrapRangeWithHighlight = (range, id) => {
+      splitBoundaries(range);
+      const common = range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement;
+      const walker = document.createTreeWalker(common, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          if (!range.intersectsNode(node)) return NodeFilter.FILTER_REJECT;
+          if (!node.textContent.trim()) return NodeFilter.FILTER_REJECT;
+          if (node.parentElement?.closest('.selection-toolbar, .ai-panel, .modal-backdrop, script, style')) return NodeFilter.FILTER_REJECT;
+          if (node.parentElement?.classList.contains('learning-highlight')) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      const targets = [];
+      while (walker.nextNode()) targets.push(walker.currentNode);
+      targets.forEach(node => {
+        const marker = document.createElement('span');
+        marker.className = 'learning-highlight';
+        marker.dataset.highlightId = id;
+        node.parentNode.insertBefore(marker, node);
+        marker.appendChild(node);
+      });
+    };
+
+    const highlightOccurrence = (section, targetText, occurrenceIndex, id) => {
+      const normalizedTarget = sanitizeText(targetText);
+      if (!normalizedTarget) return false;
+      const textNodes = getTextNodes(section);
+      let flatText = '';
+      const map = [];
+      textNodes.forEach(node => {
+        const start = flatText.length;
+        flatText += node.textContent;
+        map.push({ node, start, end: flatText.length });
+      });
+      const normalizedFlat = sanitizeText(flatText);
+      if (!normalizedFlat) return false;
+      let searchFrom = 0;
+      let foundIndex = -1;
+      for (let i = 0; i <= occurrenceIndex; i += 1) {
+        foundIndex = normalizedFlat.indexOf(normalizedTarget, searchFrom);
+        if (foundIndex === -1) return false;
+        searchFrom = foundIndex + normalizedTarget.length;
+      }
+      const rawTarget = flatText.slice(foundIndex, foundIndex + targetText.length) || targetText;
+      const range = document.createRange();
+      let startSet = false;
+      for (const item of map) {
+        if (!startSet && foundIndex >= item.start && foundIndex < item.end) {
+          range.setStart(item.node, foundIndex - item.start);
+          startSet = true;
+        }
+        const endIndex = foundIndex + rawTarget.length;
+        if (startSet && endIndex > item.start && endIndex <= item.end) {
+          range.setEnd(item.node, endIndex - item.start);
+          break;
+        }
+      }
+      if (!startSet || range.collapsed) return false;
+      wrapRangeWithHighlight(range, id);
+      return true;
+    };
+
+    const renderHighlights = () => {
+      document.querySelectorAll('.learning-highlight').forEach(node => {
+        const parent = node.parentNode;
+        while (node.firstChild) parent.insertBefore(node.firstChild, node);
+        parent.removeChild(node);
+        parent.normalize();
+      });
+      highlights.forEach(item => {
+        const section = document.getElementById(item.chapterId);
+        if (section) highlightOccurrence(section, item.text, item.occurrenceIndex || 0, item.id);
+      });
+    };
+
+    const groupHighlights = () => {
+      const grouped = new Map();
+      highlights.forEach(item => {
+        if (!grouped.has(item.chapterTitle)) grouped.set(item.chapterTitle, []);
+        grouped.get(item.chapterTitle).push(item);
+      });
+      return [...grouped.entries()];
+    };
+
+    const renderNotesModal = () => {
+      const groups = groupHighlights();
+      if (!groups.length) {
+        notesModalContent.innerHTML = '<p class="empty-notes">아직 저장된 하이라이트가 없어요. 문장을 드래그해서 첫 노트를 남겨보세요.</p>';
+        return;
+      }
+      notesModalContent.innerHTML = groups.map(([chapterTitle, items]) => `
+        <section class="notes-group">
+          <h3 style="margin-top:0;">${chapterTitle}</h3>
+          ${items.map(item => `
+            <article class="note-item">
+              <blockquote class="note-quote">${item.text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</blockquote>
+              <div class="note-meta">저장: ${new Date(item.createdAt).toLocaleString('ko-KR')}</div>
+              ${item.note ? `<p style="margin:8px 0 0;"><strong>메모:</strong> ${item.note.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>` : ''}
+            </article>
+          `).join('')}
+        </section>
+      `).join('');
+    };
+
+    const escapeMarkdown = (text) => text.replace(/\\/g, '\\\\').replace(/`/g, '\\`');
+
+    const exportNotesAsMarkdown = () => {
+      const lines = ['# 조직 설계법 학습 노트', ''];
+      groupHighlights().forEach(([chapterTitle, items]) => {
+        lines.push(`## ${chapterTitle}`, '');
+        items.forEach(item => {
+          lines.push('### 하이라이트');
+          lines.push(`> ${escapeMarkdown(item.text)}`);
+          lines.push('');
+          if (item.note) {
+            lines.push(`**메모:** ${escapeMarkdown(item.note)}`);
+            lines.push('');
+          }
+          lines.push('---', '');
+        });
+      });
+      const blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'org-design-study-notes.md';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    };
+
+    const hideToolbar = () => {
+      selectionToolbar.style.display = 'none';
+      pendingSelection = null;
+    };
+
+    const showToolbarForSelection = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return hideToolbar();
+      const range = selection.getRangeAt(0);
+      const selectedText = sanitizeText(selection.toString());
+      const meta = getChapterMeta(range.commonAncestorContainer);
+      if (!selectedText || !meta) return hideToolbar();
+      const rect = range.getBoundingClientRect();
+      pendingSelection = {
+        range: range.cloneRange(),
+        text: selectedText,
+        chapterId: meta.chapterId,
+        chapterTitle: meta.chapterTitle,
+        occurrenceIndex: countOccurrencesBeforeRange(meta.section, range, selectedText)
+      };
+      selectionToolbar.style.display = 'flex';
+      selectionToolbar.style.top = `${Math.max(12, window.scrollY + rect.top - 54)}px`;
+      selectionToolbar.style.left = `${Math.min(window.innerWidth - 140, Math.max(12, rect.left + rect.width / 2 - 60))}px`;
+    };
+
+    const addHighlightFromSelection = () => {
+      if (!pendingSelection) return;
+      const note = window.prompt('메모를 한 줄로 남길까요? (선택)', '') || '';
+      const entry = {
+        id: `hl-${Date.now()}`,
+        text: pendingSelection.text,
+        note: note.trim(),
+        chapterId: pendingSelection.chapterId,
+        chapterTitle: pendingSelection.chapterTitle,
+        occurrenceIndex: pendingSelection.occurrenceIndex,
+        createdAt: new Date().toISOString()
+      };
+      highlights.push(entry);
+      saveHighlights();
+      renderHighlights();
+      renderNotesModal();
+      window.getSelection()?.removeAllRanges();
+      hideToolbar();
+    };
+
+    const getActiveHighlightText = () => {
+      const currentSelection = sanitizeText(window.getSelection()?.toString() || '');
+      if (currentSelection) return currentSelection;
+      const currentChapter = getCurrentChapter();
+      const latestInChapter = [...highlights].reverse().find(item => item.chapterId === currentChapter?.chapterId);
+      if (latestInChapter?.text) return latestInChapter.text;
+      return highlights[highlights.length - 1]?.text || '';
+    };
+
+    const copyQuestionPayload = async () => {
+      const currentChapter = getCurrentChapter();
+      const payload = `현재 챕터: ${currentChapter?.chapterTitle || '알 수 없음'}\n\n${aiQuestionInput.value.trim()}\n\n${getActiveHighlightText()}`;
+      await navigator.clipboard.writeText(payload);
+      copyAiQuestion.textContent = '복사 완료';
+      setTimeout(() => { copyAiQuestion.textContent = '현재 챕터 + 질문 복사'; }, 1500);
+    };
 
     const updateProgress = () => {
       const scrollTop = window.scrollY;
@@ -674,10 +1144,35 @@
         if (rect.top <= 180) currentId = sec.id;
       });
       tocLinks.forEach(link => link.classList.toggle('active', link.getAttribute('href') === '#' + currentId));
+      const meta = getCurrentChapter();
+      chapterContext.textContent = `현재 챕터: ${meta?.chapterTitle || '알 수 없음'} · 최근 하이라이트 또는 선택 문장이 함께 복사됩니다.`;
     };
 
+    document.addEventListener('mouseup', () => setTimeout(showToolbarForSelection, 0));
+    document.addEventListener('selectionchange', () => {
+      if (!window.getSelection()?.toString().trim()) hideToolbar();
+    });
+    document.addEventListener('mousedown', event => {
+      if (!selectionToolbar.contains(event.target)) hideToolbar();
+    });
+
+    highlightButton.addEventListener('click', addHighlightFromSelection);
+    studyNotesButton.addEventListener('click', () => { renderNotesModal(); notesModalBackdrop.classList.add('open'); });
+    closeNotesButton.addEventListener('click', () => notesModalBackdrop.classList.remove('open'));
+    notesModalBackdrop.addEventListener('click', event => { if (event.target === notesModalBackdrop) notesModalBackdrop.classList.remove('open'); });
+    exportNotesButton.addEventListener('click', exportNotesAsMarkdown);
+    askAiFab.addEventListener('click', () => aiPanel.classList.toggle('open'));
+    copyAiQuestion.addEventListener('click', () => copyQuestionPayload().catch(() => {
+      copyAiQuestion.textContent = '복사 실패';
+      setTimeout(() => { copyAiQuestion.textContent = '현재 챕터 + 질문 복사'; }, 1500);
+    }));
+
     window.addEventListener('scroll', updateProgress, { passive: true });
-    window.addEventListener('load', updateProgress);
+    window.addEventListener('load', () => {
+      renderHighlights();
+      renderNotesModal();
+      updateProgress();
+    });
   </script>
 </body>
 </html>
