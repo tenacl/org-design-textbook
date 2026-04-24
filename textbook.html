@@ -822,6 +822,7 @@
     const storageKey = 'org-design-highlights';
     let pendingSelection = null;
     let suppressSelectionHide = false;
+    let selectionChangeTimer = null;
 
     const sanitizeText = (value) => (value || '').replace(/\s+/g, ' ').trim();
     const escapeHtml = (value) => (value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -987,13 +988,20 @@
     };
 
     const renderHighlights = () => {
-      document.querySelectorAll('mark.learning-highlight').forEach(node => {
+      const highlightNodes = [...document.querySelectorAll('mark.learning-highlight')];
+      const existingIds = new Set(highlightNodes.map(node => node.dataset.highlightId).filter(Boolean));
+      const wantedIds = new Set(highlights.map(item => item.id));
+
+      highlightNodes.forEach(node => {
+        if (wantedIds.has(node.dataset.highlightId)) return;
         const parent = node.parentNode;
         while (node.firstChild) parent.insertBefore(node.firstChild, node);
         parent.removeChild(node);
         parent.normalize();
       });
+
       highlights.forEach(item => {
+        if (existingIds.has(item.id)) return;
         const section = document.getElementById(item.chapterId);
         if (section) highlightOccurrence(section, item.text, item.occurrenceIndex || 0, item.id);
       });
@@ -1107,11 +1115,11 @@
         timestamp: new Date().toISOString()
       };
       highlights = [...highlights, entry];
-      persistAndRefresh();
       suppressSelectionHide = true;
-      window.getSelection()?.removeAllRanges();
-      setTimeout(() => { suppressSelectionHide = false; }, 0);
       hideToolbar();
+      window.getSelection()?.removeAllRanges();
+      setTimeout(() => { suppressSelectionHide = false; }, 200);
+      persistAndRefresh();
     };
 
     const removeHighlight = (id) => {
@@ -1158,7 +1166,10 @@
 
     document.addEventListener('mouseup', () => setTimeout(showToolbarForSelection, 0));
     document.addEventListener('selectionchange', () => {
-      if (!window.getSelection()?.toString().trim() && !suppressSelectionHide) hideToolbar();
+      clearTimeout(selectionChangeTimer);
+      selectionChangeTimer = setTimeout(() => {
+        if (!window.getSelection()?.toString().trim() && !suppressSelectionHide) hideToolbar();
+      }, 50);
     });
     document.addEventListener('mousedown', event => {
       if (!selectionToolbar.contains(event.target)) hideToolbar();
