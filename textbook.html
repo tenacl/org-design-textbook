@@ -1115,11 +1115,18 @@
         timestamp: new Date().toISOString()
       };
       highlights = [...highlights, entry];
+      // 1) 패널 즉시 렌더링
+      saveHighlights();
+      renderNotesSidebar();
+      // 2) 그 다음 DOM 하이라이트 삽입
+      const section = document.getElementById(entry.chapterId);
+      if (section) highlightOccurrence(section, entry.text, entry.occurrenceIndex || 0, entry.id);
+      // 3) toolbar/selection 정리
       suppressSelectionHide = true;
       hideToolbar();
       window.getSelection()?.removeAllRanges();
       setTimeout(() => { suppressSelectionHide = false; }, 200);
-      persistAndRefresh();
+      updateProgress();
     };
 
     const removeHighlight = (id) => {
